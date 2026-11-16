@@ -271,15 +271,9 @@ button {
                 I know you like Lilies :)
             </p>
 
-            <p style="font-size: 17px; color: #d6336c;">
-                With love, always. ❤️
-            </p>
 
         </div>
 
-        <div class="small-note" id="smallNote">
-            Made with lots of love ❤️
-        </div>
 
     </div>
 
