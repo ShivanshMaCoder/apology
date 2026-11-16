@@ -14,7 +14,7 @@ html_code = """
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
 <style>
 * {
@@ -36,8 +36,13 @@ html, body {
     );
 }
 
+body {
+    min-height: 100vh;
+}
+
 .main-container {
     min-height: 850px;
+    min-height: 100svh;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -46,22 +51,21 @@ html, body {
     text-align: center;
     position: relative;
     overflow: hidden;
-    padding: 25px 15px;
+    padding: clamp(16px, 4vw, 35px);
 }
 
 .card {
-    width: 95%;
-    max-width: 650px;
-    padding: 45px 25px;
-    background: rgba(255,255,255,0.82);
-    border-radius: 30px;
+    width: min(100%, 650px);
+    padding: clamp(25px, 5vw, 45px);
+    background: rgba(255,255,255,0.85);
+    border-radius: clamp(20px, 4vw, 30px);
     box-shadow: 0 15px 45px rgba(220, 50, 100, 0.2);
     z-index: 5;
     transition: all 0.4s ease;
 }
 
 .heart-icon {
-    font-size: 65px;
+    font-size: clamp(45px, 10vw, 65px);
     animation: heartbeat 1.2s infinite;
 }
 
@@ -76,7 +80,7 @@ html, body {
 
 h1 {
     color: #d6336c;
-    font-size: 35px;
+    font-size: clamp(27px, 5.5vw, 35px);
     line-height: 1.4;
     transition: font-size 0.4s ease;
     overflow-wrap: break-word;
@@ -84,29 +88,33 @@ h1 {
 
 .subtitle {
     color: #8c5265;
-    font-size: 18px;
+    font-size: clamp(16px, 3.5vw, 18px);
+    line-height: 1.6;
     margin-top: 15px;
-    margin-bottom: 35px;
+    margin-bottom: 30px;
 }
 
 .buttons {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 25px;
-    min-height: 100px;
+    gap: clamp(12px, 4vw, 25px);
+    min-height: 90px;
     flex-wrap: wrap;
+    width: 100%;
 }
 
 button {
     border: none;
     border-radius: 50px;
     cursor: pointer;
-    font-size: 20px;
+    font-size: clamp(17px, 4vw, 20px);
     font-weight: bold;
-    padding: 15px 35px;
+    padding: 15px clamp(22px, 5vw, 35px);
     transition: all 0.35s ease;
     font-family: Georgia, serif;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
 #yesBtn {
@@ -122,7 +130,6 @@ button {
 
 #yesBtn:hover {
     filter: brightness(1.08);
-    transform: scale(1.04);
 }
 
 #noBtn {
@@ -135,8 +142,17 @@ button {
     color: #d6336c;
     font-size: 20px;
     line-height: 1.5;
-    margin-top: 25px;
+    margin-top: 20px;
     animation: appear 1s ease;
+}
+
+.final-message h2 {
+    font-size: clamp(24px, 5vw, 30px);
+    margin: 15px 0;
+}
+
+.final-message p {
+    overflow-wrap: break-word;
 }
 
 @keyframes appear {
@@ -156,6 +172,7 @@ button {
     pointer-events: none;
     z-index: 100;
     animation: floatUp linear forwards;
+    will-change: transform, opacity;
 }
 
 @keyframes floatUp {
@@ -169,29 +186,102 @@ button {
     }
 }
 
-.small-note {
-    margin-top: 25px;
-    color: #b36b83;
-    font-size: 13px;
-}
+/* iPhone and smaller mobile screens */
+@media screen and (max-width: 480px) {
 
-@media(max-width: 500px) {
+    .main-container {
+        padding: 15px 12px;
+        justify-content: center;
+    }
+
     .card {
-        padding: 35px 15px;
+        width: 100%;
+        padding: 28px 18px;
+        border-radius: 24px;
     }
 
     h1 {
-        font-size: 28px;
+        font-size: clamp(25px, 7vw, 30px);
+        line-height: 1.4;
+    }
+
+    .subtitle {
+        font-size: 16px;
+        margin-bottom: 20px;
     }
 
     .buttons {
         gap: 12px;
+        min-height: 80px;
+    }
+
+    button {
+        padding: 14px 25px;
+        font-size: 17px;
+    }
+
+    .final-message {
+        margin-top: 15px;
+        font-size: 17px;
+        line-height: 1.65;
     }
 
     .final-message p {
         font-size: 17px !important;
+        line-height: 1.7 !important;
+    }
+
+    .final-message > div:first-child {
+        font-size: 45px !important;
+    }
+
+    .final-message > div:nth-of-type(1) {
+        font-size: 32px !important;
     }
 }
+
+/* Tablets and iPads */
+@media screen and (min-width: 481px) and (max-width: 1024px) {
+
+    .main-container {
+        padding: 30px;
+    }
+
+    .card {
+        width: min(90%, 650px);
+        padding: 40px 35px;
+    }
+
+    h1 {
+        font-size: 34px;
+    }
+
+    .final-message p {
+        font-size: 20px;
+    }
+}
+
+/* Small height screens */
+@media screen and (max-height: 650px) {
+
+    .main-container {
+        justify-content: flex-start;
+        padding-top: 20px;
+        padding-bottom: 25px;
+    }
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .heart-icon {
+        animation: none;
+    }
+
+    .card, button {
+        transition: none;
+    }
+}
+
 </style>
 </head>
 
@@ -271,9 +361,7 @@ button {
                 I know you like Lilies :)
             </p>
 
-
         </div>
-
 
     </div>
 
@@ -302,7 +390,7 @@ const sorryAudio = document.getElementById("sorryAudio");
 const admiringAudio = document.getElementById("admiringAudio");
 
 
-// AUDIO PLAYBACK FUNCTION
+// AUDIO PLAYBACK
 
 function playSong(audio) {
 
@@ -317,8 +405,10 @@ function playSong(audio) {
 
             console.error("Audio playback error:", error);
 
-            subtitle.innerText =
-                "The music couldn't play. Please try again. ❤️";
+            if (subtitle.style.display !== "none") {
+                subtitle.innerText =
+                    "The music couldn't play. Please try again. ❤️";
+            }
 
         });
 
@@ -326,7 +416,7 @@ function playSong(audio) {
 }
 
 
-// NO BUTTON FUNCTION
+// NO BUTTON
 
 function sayNo() {
 
@@ -334,15 +424,14 @@ function sayNo() {
 
     noCount++;
 
-    // Play Sorry once per click
     playSong(sorryAudio);
 
-    // Increase apology text size
+    // Increase apology text
     const textSize = Math.min(35 + noCount * 7, 77);
 
     apologyText.style.fontSize = textSize + "px";
 
-    // Increase Yes button size
+    // Increase Yes button
     const yesSize = Math.min(20 + noCount * 8, 65);
 
     yesBtn.style.fontSize = yesSize + "px";
@@ -362,7 +451,6 @@ function sayNo() {
     noBtn.style.pointerEvents =
         noScale <= 0.05 ? "none" : "auto";
 
-    // Update messages
     const messages = [
         "Please reconsider? 🥺",
         "I'll try to make things better! ❤️",
@@ -375,7 +463,6 @@ function sayNo() {
     subtitle.innerText =
         messages[Math.min(noCount - 1, messages.length - 1)];
 
-    // Remove No after six clicks
     if (noCount >= 6) {
 
         noBtn.style.display = "none";
@@ -388,7 +475,7 @@ function sayNo() {
 }
 
 
-// HEART ANIMATION FUNCTION
+// FLOATING HEARTS
 
 function createHeart() {
 
@@ -426,7 +513,7 @@ function createHeart() {
 }
 
 
-// YES BUTTON FUNCTION
+// YES BUTTON
 
 function sayYes() {
 
@@ -434,54 +521,47 @@ function sayYes() {
 
     accepted = true;
 
-    // Stop Sorry song
+    // Stop Sorry
     sorryAudio.pause();
     sorryAudio.currentTime = 0;
 
     // Play Admiring You
     playSong(admiringAudio);
 
-    // Update heading
+    // Change heading
     apologyText.innerHTML =
         "THANK YOU FOR GIVING ME ANOTHER CHANCE! ❤️";
 
-    apologyText.style.fontSize = "36px";
+    apologyText.style.fontSize =
+        "clamp(25px, 5vw, 36px)";
 
-    // Hide subtitle and buttons
+    // Hide buttons and subtitle
     subtitle.style.display = "none";
 
     document.getElementById("buttons").style.display =
         "none";
 
-    // Display final message
+    // Show final message
     document.getElementById("finalMessage").style.display =
         "block";
 
-    // Hide small note
-    const smallNote =
-        document.getElementById("smallNote");
-
-    if (smallNote) {
-        smallNote.style.display = "none";
-    }
-
-    // Update card appearance
+    // Update card
     document.getElementById("mainCard").style.background =
         "rgba(255,255,255,0.92)";
 
-    // Initial heart celebration
+    // Heart celebration
     for (let i = 0; i < 80; i++) {
 
         setTimeout(createHeart, i * 80);
 
     }
 
-    // Continuous floating hearts
+    // Continuous hearts
     heartInterval = setInterval(function() {
 
         createHeart();
 
-    }, 250);
+    }, 350);
 
 }
 
@@ -493,6 +573,6 @@ function sayYes() {
 
 components.html(
     html_code,
-    height=880,
-    scrolling=False
+    height=950,
+    scrolling=True
 )
