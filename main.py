@@ -21,16 +21,23 @@ html_code = """
     box-sizing: border-box;
 }
 
-body {
+html, body {
     margin: 0;
     padding: 0;
-    font-family: 'Georgia', serif;
-    overflow: hidden;
-    background: linear-gradient(135deg, #ffe0e9, #ffc2d1, #fff0f5);
+    width: 100%;
+    min-height: 100%;
+    font-family: Georgia, serif;
+    overflow-x: hidden;
+    background: linear-gradient(
+        135deg,
+        #ffe0e9,
+        #ffc2d1,
+        #fff0f5
+    );
 }
 
 .main-container {
-    height: 850px;
+    min-height: 850px;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -39,14 +46,14 @@ body {
     text-align: center;
     position: relative;
     overflow: hidden;
-    padding: 20px;
+    padding: 25px 15px;
 }
 
 .card {
     width: 95%;
     max-width: 650px;
     padding: 45px 25px;
-    background: rgba(255,255,255,0.75);
+    background: rgba(255,255,255,0.82);
     border-radius: 30px;
     box-shadow: 0 15px 45px rgba(220, 50, 100, 0.2);
     z-index: 5;
@@ -59,8 +66,12 @@ body {
 }
 
 @keyframes heartbeat {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
 }
 
 h1 {
@@ -68,6 +79,7 @@ h1 {
     font-size: 35px;
     line-height: 1.4;
     transition: font-size 0.4s ease;
+    overflow-wrap: break-word;
 }
 
 .subtitle {
@@ -98,7 +110,11 @@ button {
 }
 
 #yesBtn {
-    background: linear-gradient(135deg, #ff477e, #e6005c);
+    background: linear-gradient(
+        135deg,
+        #ff477e,
+        #e6005c
+    );
     color: white;
     box-shadow: 0 8px 20px rgba(230, 0, 92, 0.25);
     z-index: 10;
@@ -106,6 +122,7 @@ button {
 
 #yesBtn:hover {
     filter: brightness(1.08);
+    transform: scale(1.04);
 }
 
 #noBtn {
@@ -116,15 +133,21 @@ button {
 .final-message {
     display: none;
     color: #d6336c;
-    font-size: 28px;
+    font-size: 20px;
     line-height: 1.5;
     margin-top: 25px;
     animation: appear 1s ease;
 }
 
 @keyframes appear {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .heart {
@@ -164,6 +187,10 @@ button {
     .buttons {
         gap: 12px;
     }
+
+    .final-message p {
+        font-size: 17px !important;
+    }
 }
 </style>
 </head>
@@ -201,13 +228,53 @@ button {
         </div>
 
         <div class="final-message" id="finalMessage">
-            YAYYYYY! ❤️❤️❤️
-            <br><br>
-            Thank you for forgiving me, Aastha!
-            <br>
-            You just made my day! 🥹
-            <br><br>
-            Sending you infinite hugs and love! 💗
+
+            <div style="font-size: 55px; margin-bottom: 20px;">
+                🤍🌸🤍
+            </div>
+
+            <h2 style="color: #d6336c;">
+                Thank You, Aastha!
+            </h2>
+
+            <p style="
+                color: #8c5265;
+                font-size: 21px;
+                line-height: 1.8;
+                font-family: Georgia, serif;
+            ">
+                I know sometimes words aren't enough,
+                but I genuinely want you to know that
+                I'm sorry.
+
+                <br><br>
+
+                I hope this little gesture brings a
+                smile to your face.
+
+                <br><br>
+
+                You are special, and I hope we can leave
+                the unpleasant moments behind.
+            </p>
+
+            <div style="font-size: 35px; margin-top: 20px;">
+                🤍🌷🤍
+            </div>
+
+            <p style="
+                font-size: 19px;
+                color: #d6336c;
+                font-style: italic;
+                margin-top: 15px;
+            ">
+                I know you like Lilies :)
+            </p>
+
+            <p style="font-size: 17px; color: #d6336c;">
+                With love, always. ❤️
+            </p>
+
         </div>
 
         <div class="small-note" id="smallNote">
@@ -218,11 +285,11 @@ button {
 
 </div>
 
-<audio id="sorryAudio" preload="auto">
+<audio id="sorryAudio" preload="none">
     <source src="/app/static/sorry.mp3" type="audio/mpeg">
 </audio>
 
-<audio id="admiringAudio" preload="auto">
+<audio id="admiringAudio" preload="none">
     <source src="/app/static/admiring_you.mp3" type="audio/mpeg">
 </audio>
 
@@ -230,6 +297,7 @@ button {
 
 let noCount = 0;
 let accepted = false;
+let heartInterval = null;
 
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
@@ -239,78 +307,132 @@ const subtitle = document.getElementById("subtitle");
 const sorryAudio = document.getElementById("sorryAudio");
 const admiringAudio = document.getElementById("admiringAudio");
 
+
+// AUDIO PLAYBACK FUNCTION
+
+function playSong(audio) {
+
+    audio.pause();
+    audio.currentTime = 0;
+
+    const playPromise = audio.play();
+
+    if (playPromise !== undefined) {
+
+        playPromise.catch(error => {
+
+            console.error("Audio playback error:", error);
+
+            subtitle.innerText =
+                "The music couldn't play. Please try again. ❤️";
+
+        });
+
+    }
+}
+
+
+// NO BUTTON FUNCTION
+
 function sayNo() {
 
     if (accepted) return;
 
     noCount++;
 
-    // Play Sorry once for every No click
-    sorryAudio.pause();
-    sorryAudio.currentTime = 0;
+    // Play Sorry once per click
+    playSong(sorryAudio);
 
-    sorryAudio.play().catch(error => {
-        console.log("Audio playback could not start:", error);
-    });
-
-    // Gradually increase apology text
+    // Increase apology text size
     const textSize = Math.min(35 + noCount * 7, 77);
+
     apologyText.style.fontSize = textSize + "px";
 
     // Increase Yes button size
     const yesSize = Math.min(20 + noCount * 8, 65);
+
     yesBtn.style.fontSize = yesSize + "px";
 
     const yesPadding = Math.min(15 + noCount * 5, 55);
-    yesBtn.style.padding = yesPadding + "px " +
-                           (yesPadding * 1.8) + "px";
+
+    yesBtn.style.padding =
+        yesPadding + "px " +
+        (yesPadding * 1.8) + "px";
 
     // Shrink No button
     const noScale = Math.max(1 - noCount * 0.17, 0);
 
     noBtn.style.transform = "scale(" + noScale + ")";
     noBtn.style.opacity = noScale;
-    noBtn.style.pointerEvents = noScale <= 0.05 ? "none" : "auto";
 
+    noBtn.style.pointerEvents =
+        noScale <= 0.05 ? "none" : "auto";
+
+    // Update messages
     const messages = [
         "Please reconsider? 🥺",
         "I'll try to make things better! ❤️",
         "One more chance, please? 💗",
         "Look how much the Yes button loves you! 🥹",
         "Okay, I am not giving up! ❤️",
-        "You only have one choice left now! 💖"
+        "Only one answer left... ❤️"
     ];
 
-    subtitle.innerText = messages[
-        Math.min(noCount - 1, messages.length - 1)
-    ];
+    subtitle.innerText =
+        messages[Math.min(noCount - 1, messages.length - 1)];
 
-    // Eventually remove No completely
+    // Remove No after six clicks
     if (noCount >= 6) {
+
         noBtn.style.display = "none";
-        subtitle.innerText = "Only one answer left... ❤️";
+
+        subtitle.innerText =
+            "Only one answer left... ❤️";
+
     }
+
 }
+
+
+// HEART ANIMATION FUNCTION
 
 function createHeart() {
 
     const heart = document.createElement("div");
+
     heart.className = "heart";
 
-    const hearts = ["❤️", "💗", "💕", "💖", "💘", "💝", "🥰"];
-
-    heart.innerText = hearts[
-        Math.floor(Math.random() * hearts.length)
+    const hearts = [
+        "❤️",
+        "💗",
+        "💕",
+        "💖",
+        "💘",
+        "💝",
+        "🥰"
     ];
 
+    heart.innerText =
+        hearts[Math.floor(Math.random() * hearts.length)];
+
     heart.style.left = Math.random() * 100 + "vw";
-    heart.style.fontSize = (20 + Math.random() * 40) + "px";
-    heart.style.animationDuration = (3 + Math.random() * 4) + "s";
+
+    heart.style.fontSize =
+        (20 + Math.random() * 40) + "px";
+
+    heart.style.animationDuration =
+        (3 + Math.random() * 4) + "s";
 
     document.body.appendChild(heart);
 
-    setTimeout(() => heart.remove(), 7500);
+    setTimeout(function() {
+        heart.remove();
+    }, 7500);
+
 }
+
+
+// YES BUTTON FUNCTION
 
 function sayYes() {
 
@@ -318,42 +440,53 @@ function sayYes() {
 
     accepted = true;
 
-    // Stop Sorry
+    // Stop Sorry song
     sorryAudio.pause();
     sorryAudio.currentTime = 0;
 
-    // Start Admiring You
-    admiringAudio.currentTime = 0;
-    admiringAudio.play().catch(error => {
-        console.log("Audio playback could not start:", error);
-    });
+    // Play Admiring You
+    playSong(admiringAudio);
 
-    // Update UI
-    apologyText.innerHTML = "SHE SAID YES!!! ❤️";
+    // Update heading
+    apologyText.innerHTML =
+        "THANK YOU FOR GIVING ME ANOTHER CHANCE! ❤️";
 
-    apologyText.style.fontSize = "42px";
+    apologyText.style.fontSize = "36px";
 
+    // Hide subtitle and buttons
     subtitle.style.display = "none";
-    document.getElementById("buttons").style.display = "none";
 
-    document.getElementById("finalMessage").style.display = "block";
-    document.getElementById("smallNote").style.display = "none";
+    document.getElementById("buttons").style.display =
+        "none";
 
-    document.getElementById("mainCard").style.background =
-        "rgba(255,255,255,0.9)";
+    // Display final message
+    document.getElementById("finalMessage").style.display =
+        "block";
 
-    // Create a continuous heart celebration
-    for (let i = 0; i < 80; i++) {
-        setTimeout(createHeart, i * 80);
+    // Hide small note
+    const smallNote =
+        document.getElementById("smallNote");
+
+    if (smallNote) {
+        smallNote.style.display = "none";
     }
 
-    // Continue the heart animation
-    const heartInterval = setInterval(() => {
-        if (!accepted) {
-            clearInterval(heartInterval);
-            return;
-        }
+    // Update card appearance
+    document.getElementById("mainCard").style.background =
+        "rgba(255,255,255,0.92)";
+
+    // Initial heart celebration
+    for (let i = 0; i < 80; i++) {
+
+        setTimeout(createHeart, i * 80);
+
+    }
+
+    // Continuous floating hearts
+    heartInterval = setInterval(function() {
+
         createHeart();
+
     }, 250);
 
 }
